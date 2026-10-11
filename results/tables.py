@@ -1,103 +1,163 @@
 #!/usr/bin/env python3
-"""Formats the rows of the main table of the paper from the CSV written by
-run.sh and, optionally, from the CSV written by spread.sh: for the
-configurations of the tables (T8 and T10 in configs.sh), grouped by seed
-width, the expected bucket size, the space and the percentage of bumped
-keys on the largest key set, the construction time on the largest key set
-with one thread and with several threads, and the query time on each key
-set. Per-size construction times, the range of query times, and the mean and
-standard deviation of space and bumped keys over the key sets of spread.sh
-are printed as LaTeX comments. Missing values are printed as --.
-Usage: tables.py <run.csv> [<spread.csv>]"""
-import sys, re, collections, statistics
+"""Prints the tables of Section 5 of the paper from a directory written by
+redo.sh: the comparisons on 10^7, 10^8 and 10^9 keys (from run.csv; the
+configurations are those of T8 and T10 in configs.sh), and the table of the
+number of layouts (from ablation.csv and ablation-generic.csv, whose
+specialized queries with the expected bucket size that minimizes space come
+from run.csv). Each table is printed as a tabular environment, preceded by
+its label; tables whose files or sizes are missing are skipped, and missing
+values are printed as --. Per-size construction times and the range of
+query times, and, if spread.csv is present, the mean and standard deviation
+of space and bumped keys over its key sets, are printed as LaTeX comments.
+Usage: tables.py <directory written by redo.sh>"""
+import sys, os, collections, statistics
 
-# The configurations of the tables (T8 and T10 in configs.sh), as (chooser or
-# PHast-R, seed bits, expected bucket size)
-TABLE = [('plus', 8, 5.25), ('w1p', 8, 5.25), ('w2p', 8, 5.0), ('w3p', 8, 5.0), ('phast', 8, 4.5),
-         ('r', 8, 4.25), ('r', 8, 4.5), ('r', 8, 4.75),
-         ('plus', 10, 5.15), ('w1p', 10, 6.2), ('w2p', 10, 6.25), ('w3p', 10, 6.0), ('phast', 10, 5.8),
-         ('r', 10, 5.75), ('r', 10, 6.0), ('r', 10, 6.25)]
+d = sys.argv[1]
 
-def key(name):
-    """(chooser or 'r', seed bits, expected bucket size) of a configuration name."""
-    m = re.match(r'ref (\w+) S=(\d+) l=([\d.]+)', name)
-    if m:
-        return m.group(1), int(m.group(2)), float(m.group(3))
-    m = re.match(r'PHast-R S=(\d+) L=\d+ R=\d+ l=([\d.]+)', name)
-    return 'r', int(m.group(1)), float(m.group(2))
+# The configurations of the tables, as (kind, seed bits or PtrHash variant,
+# expected bucket size); kinds are plus (PHast+), w<delta>p (PHast+ with
+# wrapping and the product), phast, ptr (PtrHash, whose expected bucket size
+# is a label only) and r (PHastR). The tables on 10^8 and 10^9 keys show a
+# subset of the configurations of the table on 10^7 keys
+T8 = [('plus', 8, 5.25), ('w1p', 8, 5.25), ('w2p', 8, 5), ('w3p', 8, 5), ('w5p', 8, 5),
+      ('w7p', 8, 5), ('phast', 8, 4.5), ('ptr', 'default', 3), ('ptr', 'compact', 3.9),
+      ('r', 8, 4.25), ('r', 8, 4.5), ('r', 8, 4.75)]
+T10 = [('plus', 10, 6.1), ('w1p', 10, 6.2), ('w2p', 10, 6.25), ('w3p', 10, 6), ('w5p', 10, 6),
+       ('w7p', 10, 6), ('phast', 10, 5.8), ('r', 10, 5.75), ('r', 10, 6), ('r', 10, 6.25)]
+L8 = [('plus', 8, 5.25), ('w3p', 8, 5), ('w7p', 8, 5), ('phast', 8, 4.5), ('ptr', 'default', 3),
+      ('ptr', 'compact', 3.9), ('r', 8, 4.25), ('r', 8, 4.5), ('r', 8, 4.75)]
+L10 = [('w3p', 10, 6), ('w7p', 10, 6), ('phast', 10, 5.8), ('r', 10, 5.75), ('r', 10, 6)]
+# The table of the number of layouts: (seed bits, expected bucket size, layouts)
+# with the default expected bucket size (A8 and A10 in configs.sh) and with
+# the one that minimizes space (A8OPT and A10OPT)
+LAYOUTS = [[(8, 4.25, 1), (8, 4.25, 2), (8, 4.25, 4)], [(8, 5, 1), (8, 4.75, 2), (8, 4.75, 4)],
+           [(10, 5.75, 1), (10, 5.75, 2), (10, 5.75, 4)], [(10, 6.25, 1), (10, 6, 2), (10, 6, 4)]]
 
-def method(c):
-    return {'plus': r'\PHastP', 'phast': r'\PHast', 'r': r'\PHastR'}.get(c) or rf'\PHastP wrap $\delta={c[1]}$'
+def slice_len(s):
+    return 1024 if s == 8 else 2048
 
-# (configuration, n) -> threads -> row; a row has the fields of the CSV of cmp
-# (the old format, without query range, construction range and bumped keys,
-# is accepted)
+def r_name(s, lam, layouts=4):
+    """The name of a configuration of PHastR in the CSV of cmp."""
+    return f'PHast-R S={s} L={slice_len(s)} R={layouts} l={lam:g} ' + ('u8' if s == 8 else 'bfvu')
+
+def name(c):
+    """The name of a configuration in the CSV of cmp."""
+    kind, s, lam = c
+    if kind == 'ptr':
+        return f'PtrHash {s}'
+    if kind == 'r':
+        return r_name(s, lam)
+    return f'ref {kind} S={s} l={lam:g}'
+
+def method(kind):
+    return {'plus': r'\PHastP', 'phast': r'\PHast', 'ptr': 'PtrHash', 'r': r'\PHastR'}.get(kind) \
+        or rf'\PHastP wrap $\delta={kind[1]}$'
+
+def configuration(c):
+    kind, s, lam = c
+    if kind == 'ptr':
+        return rf'{s}, $\lambda={lam:g}$'
+    if kind == 'r':
+        return rf'$S={s}$, $L={slice_len(s)}$, $\lambda={lam:g}$'
+    return rf'$S={s}$, $\lambda={lam:g}$'
+
+def fmt(x, digits):
+    return '--' if x is None else f'{x:.{digits}f}'
+
+# A row has the fields of the CSV of cmp
 Row = collections.namedtuple('Row', 'bits build query qmin qmax bmin bmax bumped')
-rows = collections.defaultdict(dict)
-for line in open(sys.argv[1]):
-    p = line.strip().split(',')
-    if len(p) < 7:
+
+def load(file):
+    """(first field, name, n) -> row, or None if the file is missing; the
+    first field is the number of threads (the key seed in spread.csv)."""
+    path = os.path.join(d, file)
+    if not os.path.exists(path):
+        return None
+    rows = {}
+    for line in open(path):
+        p = line.strip().split(',')
+        if len(p) >= 12 and p[1] == 'CSV':
+            rows[(int(p[0]), p[2], int(p[3]))] = Row(*[float(x) for x in p[4:12]])
+    return rows
+
+run = load('run.csv')
+sizes = sorted({n for _, _, n in run})
+mt = max(t for t, _, _ in run)
+
+print(f'% Generated by results/tables.py {d}')
+for n, groups, multi in ((10**7, (T8, T10), False), (10**8, (L8, L10), True), (10**9, (L8, L10), True)):
+    if n not in sizes:
         continue
-    f = [float(x) for x in p[4:]] + [None] * (12 - len(p))
-    rows[(key(p[2]), int(p[3]))][p[0]] = Row(*f)
-sizes = sorted({n for _, n in rows})
-threads = sorted({int(t) for v in rows.values() for t in v} - {1})
-mt = str(threads[-1]) if threads else None
-top = sizes[-1] if sizes else None
+    print(f'% tab:1e{len(str(n)) - 1}')
+    if multi:
+        print(r'\begin{tabular}{llrrrr}' '\n' r'\toprule' '\n'
+              r'& & & \multicolumn{2}{c}{build [ns/key]} & \\' '\n' r'\cmidrule(lr){4-5}' '\n'
+              rf'Method & Configuration & bits/key & 1 thread & {mt} threads & query [ns] \\')
+    else:
+        print(r'\begin{tabular}{llrrr}' '\n' r'\toprule' '\n'
+              r'Method & Configuration & bits/key & build [ns/key] & query [ns] \\')
+    for g in groups:
+        print(r'\midrule')
+        for i, c in enumerate(g):
+            if c[0] == 'r' and g[i - 1][0] != 'r':
+                print(r'\addlinespace')
+            r1, rt = run.get((1, name(c), n)), run.get((mt, name(c), n))
+            cells = [method(c[0]), configuration(c), fmt(r1 and r1.bits, 3), fmt(r1 and r1.build, 0)]
+            if multi:
+                cells.append(fmt(rt and rt.build, 1))
+            cells.append(fmt(r1 and r1.query, 1))
+            print(' & '.join(cells) + r' \\')
+    print(r'\bottomrule' '\n' r'\end{tabular}')
 
-def fmt(x, d):
-    return '--' if x is None else f'{x:.{d}f}'
-
-def get(k, n, t='1'):
-    return rows.get((k, n), {}).get(t)
-
-print(f'% Generated by results/tables.py {" ".join(sys.argv[1:])}')
-print(f'% Space, bumped keys and construction on {top} keys; queries on {sizes} keys; '
-      f'multithreaded construction with {mt} threads')
-s_prev = None
-for k in TABLE:
-    c, s, lam = k
-    if s != s_prev:
-        if s_prev is not None:
-            print(r'\midrule')
-        print(f'% {s}-bit seeds')
-    elif c == 'r' and TABLE[TABLE.index(k) - 1][0] != 'r':
-        print(r'\addlinespace')
-    s_prev = s
-    r1, rt = get(k, top), get(k, top, mt)
-    cells = [method(c), f'{lam:g}', fmt(r1 and r1.bits, 3), fmt(r1 and r1.bumped, 1),
-             fmt(r1 and r1.build, 0), fmt(rt and rt.build, 1)]
-    cells += [fmt(get(k, n) and get(k, n).query, 1) for n in sizes]
-    print(' & '.join(cells) + r' \\')
+ablation, generic = load('ablation.csv'), load('ablation-generic.csv')
+if ablation and generic:
+    n = max(k[2] for k in generic)
+    print(f'% tab:layouts ({n} keys)')
+    print(r'\begin{tabular}{lrrrrr}' '\n' r'\toprule' '\n'
+          r'& & & & \multicolumn{2}{c}{query [ns]} \\' '\n' r'\cmidrule(lr){5-6}' '\n'
+          r'Configuration & bits/key & bumped [\%] & build [ns/key] & generic & specialized \\')
+    for i, g in enumerate(LAYOUTS):
+        print(r'\midrule' if i % 2 == 0 else r'\addlinespace')
+        for s, lam, layouts in g:
+            k = (1, r_name(s, lam, layouts), n)
+            # Space and construction come from the run with specialized
+            # queries if the configuration is there, as do the specialized
+            # queries, which for the other configurations with four layouts
+            # come from run.csv
+            a, gen = ablation.get(k), generic.get(k)
+            r = a or gen
+            spec = (a or run.get(k)) if layouts == 4 else None
+            cells = [rf'$S={s}$, $L={slice_len(s)}$, $\lambda={lam:g}$, $R={layouts}$',
+                     fmt(r and r.bits, 3), fmt(r and r.bumped, 2), fmt(r and r.build, 0),
+                     fmt(gen and gen.query, 1), fmt(spec and spec.query, 1)]
+            print(' & '.join(cells) + r' \\')
+    print(r'\bottomrule' '\n' r'\end{tabular}')
 
 print('% Construction (ns/key, median [min-max] of the constructions) by number of keys, with 1 and with',
       mt, 'threads; query time (ns, median [min-max] of the rounds)')
-for k in TABLE:
-    c, s, lam = k
+for c in T8 + T10:
     out = []
     for n in sizes:
-        r1, rt = get(k, n), get(k, n, mt)
+        r1, rt = run.get((1, name(c), n)), run.get((mt, name(c), n))
         if r1 is None:
             continue
-        b = f'{r1.build:.1f} [{fmt(r1.bmin, 1)}-{fmt(r1.bmax, 1)}]'
+        b = f'{r1.build:.1f} [{r1.bmin:.1f}-{r1.bmax:.1f}]'
         if rt is not None:
-            b += f' / {rt.build:.1f} [{fmt(rt.bmin, 1)}-{fmt(rt.bmax, 1)}]'
-        out.append(f'n={n}: build {b}, query {r1.query:.1f} [{fmt(r1.qmin, 1)}-{fmt(r1.qmax, 1)}]')
-    print(f'%   {c} S={s} lambda={lam:g}: ' + '; '.join(out))
+            b += f' / {rt.build:.1f} [{rt.bmin:.1f}-{rt.bmax:.1f}]'
+        out.append(f'n={n}: build {b}, query {r1.query:.1f} [{r1.qmin:.1f}-{r1.qmax:.1f}]')
+    print(f'%   {name(c)}: ' + '; '.join(out))
 
-if len(sys.argv) > 2:
-    spread = collections.defaultdict(list)
-    for line in open(sys.argv[2]):
-        p = line.strip().split(',')
-        if len(p) < 12:
-            continue
-        spread[key(p[2])].append((float(p[4]), float(p[11])))
-    print('% Space (bits/key) and bumped keys (%) over', max((len(v) for v in spread.values()), default=0),
+spread = load('spread.csv')
+if spread:
+    by_name = collections.defaultdict(list)
+    for (_, nm, _), r in spread.items():
+        by_name[nm].append(r)
+    print('% Space (bits/key) and bumped keys (%) over', max(len(v) for v in by_name.values()),
           'key sets: mean (standard deviation)')
-    for k in TABLE:
-        v = spread.get(k)
+    for c in T8 + T10:
+        v = by_name.get(name(c))
         if not v or len(v) < 2:
             continue
-        b, beta = [x[0] for x in v], [x[1] for x in v]
-        print(f'%   {k[0]} S={k[1]} lambda={k[2]:g}: {statistics.mean(b):.4f} ({statistics.stdev(b):.4f}) '
-              f'bits/key, {statistics.mean(beta):.2f} ({statistics.stdev(beta):.2f})% bumped')
+        b, beta = [r.bits for r in v], [r.bumped for r in v]
+        print(f'%   {name(c)}: {statistics.mean(b):.4f} ({statistics.stdev(b):.4f}) bits/key, '
+              f'{statistics.mean(beta):.2f} ({statistics.stdev(beta):.2f})% bumped')

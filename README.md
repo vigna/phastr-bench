@@ -59,7 +59,6 @@ usage is described at the start of each file):
 - `spread.sh`: space over ten key sets;
 - `offline.sh`: offline construction;
 - `ablation.sh`: number of layouts;
-- `strings.sh`: string keys.
 
 The configurations are in `configs.sh`.
 

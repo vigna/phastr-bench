@@ -89,6 +89,8 @@ fn time<T: Copy>(
 /// A structure to be measured: its name, the fraction of bumped keys, and
 /// a function timing queries (set, number of queries, round) on all keys
 /// (set 0), on the keys placed in the first level (1) or on bumped keys (2).
+/// Set `s` of round `r` uses window `3r + s` of its keys, so the sets of a
+/// round query different keys.
 type Entry<'a> = (String, f64, Box<dyn Fn(usize, usize, u64) -> f64 + 'a>);
 
 fn entry<'a, T: Copy + 'a>(
@@ -103,10 +105,13 @@ fn entry<'a, T: Copy + 'a>(
     (
         name.to_string(),
         beta,
-        Box::new(move |set, queries, round| match set {
-            0 => time(keys, queries, round, sequential, get),
-            1 => time(&placed, queries, round, sequential, get),
-            _ => time(&bumped, queries / 4, round, sequential, get),
+        Box::new(move |set, queries, round| {
+            let window = 3 * round + set as u64;
+            match set {
+                0 => time(keys, queries, window, sequential, get),
+                1 => time(&placed, queries, window, sequential, get),
+                _ => time(&bumped, queries / 4, window, sequential, get),
+            }
         }),
     )
 }
@@ -193,12 +198,16 @@ fn main() {
         }
     }
     // Rounds are interleaved, so that all structures are measured in the
-    // same conditions; we report medians
+    // same conditions: in each round, each set is measured on all structures
+    // in turn, so that (with more than one structure) every measurement
+    // follows that of another structure, as in cmp; measuring the sets of a
+    // structure one after the other would let the first-level keys find in
+    // the cache the seeds read by the previous set. We report medians
     let mut times = vec![[const { Vec::new() }; 3]; entries.len()];
     for r in 0..a.repeats as u64 {
-        for (times, (_, _, bench)) in times.iter_mut().zip(&entries) {
-            for (set, times) in times.iter_mut().enumerate() {
-                times.push(if a.set.is_none_or(|s| s == set) {
+        for set in 0..3 {
+            for (times, (_, _, bench)) in times.iter_mut().zip(&entries) {
+                times[set].push(if a.set.is_none_or(|s| s == set) {
                     bench(set, a.queries, r)
                 } else {
                     0.0

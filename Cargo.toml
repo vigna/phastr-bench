@@ -1,0 +1,31 @@
+[package]
+name = "phastr-bench"
+version = "0.1.0"
+edition = "2024"
+publish = false
+description = "Experimental harness for PHast-R (see ../NOTES.md)"
+
+[lib]
+name = "lab"
+
+[dependencies]
+ph = { path = "bsuccinct-rs/ph", features = ["wyhash", "gxhash"] }
+ptr_hash = { path = "PTRHash" }
+# sux = { version = "=0.15.0", features = ["epserde", "cli"] }
+sux = { git = "https://github.com/vigna/sux-rs" }
+clap = { version = "4", features = ["derive"] }
+xxhash-rust = { version = "0.8", features = ["xxh3"] }
+gxhash = "3.5"
+value-traits = "0.3.0"
+dsi-progress-logger = "0.8"
+mem_dbg = "0.4"
+rayon = "1.12"
+
+[profile.release]
+opt-level = 3
+debug = true
+codegen-units = 1
+lto = "thin"
+
+# Standalone workspace, independent of the sux package.
+[workspace]

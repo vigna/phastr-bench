@@ -1,0 +1,8 @@
+[submodule "PTRHash"]
+	path = PTRHash
+	url = https://github.com/vigna/PTRHash.git
+	branch = master
+[submodule "bsuccinct-rs"]
+	path = bsuccinct-rs
+	url = https://github.com/vigna/bsuccinct-rs.git
+	branch = sux

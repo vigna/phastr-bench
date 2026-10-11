@@ -19,7 +19,7 @@
 # for multithreaded runs, as a taskset list), THREADS (their number), SIZES
 # (the numbers of keys), BUILDS; see redo.sh.
 . "$(dirname "$0")/configs.sh"
-B=${1:-../../target-nexus/release/cmp}
+B=${1:-../target-nexus/release/cmp}
 O=${2:-run}
 CPU1=${CPU1:-2}
 CPUS=${CPUS:-0-7}

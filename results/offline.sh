@@ -14,7 +14,7 @@
 # Environment: CPU1, CPUS, THREADS, SIZES; see redo.sh. The configuration is
 # that of PHastR with 8-bit seeds and the default expected bucket size.
 . "$(dirname "$0")/configs.sh"
-B=${1:-../../target/release}
+B=${1:-../target/release}
 O=${2:-offline.txt}
 CPU1=${CPU1:-2}
 CPUS=${CPUS:-0-7}

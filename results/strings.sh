@@ -8,7 +8,7 @@
 # Environment: CPU1, SIZES; see redo.sh. Only sizes up to 10^8 are used (the
 # strings take about 70 bytes per key).
 . "$(dirname "$0")/configs.sh"
-B=${1:-../../target-nexus/release/cmpstr}
+B=${1:-../target-nexus/release/cmpstr}
 O=${2:-strings}
 CPU1=${CPU1:-2}
 SIZES=${SIZES:-"10000000 100000000 1000000000"}

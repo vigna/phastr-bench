@@ -8,7 +8,7 @@
 # it spent building PHast; with 10^9 keys the peak memory usage is about
 # 60 GB, with 10^10 keys about 250 GB.
 . "$(dirname "$0")/configs.sh"
-B=${1:-../../target-nexus/release}
+B=${1:-../target-nexus/release}
 O=${2:-large}
 CPU1=${CPU1:-2}
 CORES=${CORES:-0 1 2 3 4 5 6 7}

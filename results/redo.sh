@@ -4,8 +4,8 @@
 # CPU), detects cores and memory, and writes the results to
 # results/<hostname>/ (env.txt, run.csv, large/, spread.csv,
 # offline.txt, ablation.csv, ablation-generic.csv, strings.csv). The
-# reference implementation and PtrHash must be in ../../../bsuccinct-rs and
-# ../../../PTRHash (see lab/Cargo.toml).
+# reference implementation and PtrHash are the submodules bsuccinct-rs and
+# PTRHash (clone with --recursive).
 # Usage: redo.sh [max keys]      (default: 10^9 if there are 64 GB free)
 # It takes about eight hours on a c7i.metal-24xl (run.sh five hours and a
 # half, large.sh one hour, spread.sh and offline.sh ten minutes each, plus
@@ -17,7 +17,7 @@
 # BUILDS overrides the number of constructions of each configuration (see
 # configs.sh).
 set -e
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")/.."
 HOST=$(hostname -s)
 O=$PWD/results/$HOST
 mkdir -p $O

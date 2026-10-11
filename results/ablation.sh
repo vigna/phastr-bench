@@ -12,7 +12,7 @@
 # Environment: CPU1, SIZES, BUILDS; see redo.sh. Only sizes up to 10^9 are
 # used.
 . "$(dirname "$0")/configs.sh"
-B=${1:-../../target-nexus/release/cmp}
+B=${1:-../target-nexus/release/cmp}
 O=${2:-ablation}
 CPU1=${CPU1:-2}
 SIZES=${SIZES:-"10000000 100000000 1000000000"}

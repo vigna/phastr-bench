@@ -8,7 +8,7 @@
 # Environment: CPU1; see redo.sh. SPREAD_N (the number of keys, 10^7 by
 # default) and SEEDS (the key seeds, 1 to 10 by default).
 . "$(dirname "$0")/configs.sh"
-B=${1:-../../target-nexus/release/cmp}
+B=${1:-../target-nexus/release/cmp}
 O=${2:-spread}
 CPU1=${CPU1:-2}
 SPREAD_N=${SPREAD_N:-10000000}

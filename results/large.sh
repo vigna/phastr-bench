@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Analysis of large key sets (Section 4.1 of the paper): query time split
+# Analysis of large key sets (Section 5.1 of the paper): query time split
 # between first-level and bumped keys, thread scaling of the construction,
 # and peak memory.
 # Usage: large.sh <directory of the binaries> <output directory>

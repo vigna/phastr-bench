@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Offline construction (Section 4 of the paper): time and peak memory of
+# Offline construction (Section 6 of the paper): time and peak memory of
 # PHastR built in memory and offline, with one and with THREADS threads, on
 # each key set of SIZES above 10^7, and offline only on 10^10 keys if TMPDIR
 # has enough free space (the offline construction writes 16 bytes per key in

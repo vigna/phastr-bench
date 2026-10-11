@@ -3,7 +3,7 @@ name = "phastr-bench"
 version = "0.1.0"
 edition = "2024"
 publish = false
-description = "Experimental harness for PHast-R (see ../NOTES.md)"
+description = "Experimental harness for PHastR (see NOTES.md in the repository of the paper)"
 
 [lib]
 name = "lab"

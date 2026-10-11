@@ -1,4 +1,4 @@
-//! Anatomy of the space of PHast+, with or without wrapping (Section 2 of the
+//! Anatomy of the space of PHast+, with or without wrapping (Section 4 of the
 //! paper), measured on the reference implementation `ph` (using the hidden
 //! accessors `Function2::level0_conf`, `level0_seed`, and `component_sizes`).
 //!

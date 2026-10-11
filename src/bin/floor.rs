@@ -1,5 +1,5 @@
 //! Window floor and self-collisions of the first level of PHastR (Sections
-//! 3 and 6 of the paper), on the same keys and hashes as `cmp`.
+//! 5 and 7 of the paper), on the same keys and hashes as `cmp`.
 //!
 //! The *floor* is the minimum number of keys that every placement of the
 //! first level must bump given only the slice starts of the keys (each key

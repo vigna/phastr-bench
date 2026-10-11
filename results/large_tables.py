@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Formats the rows of the tables of Section 4.1 of the paper from the
+"""Formats the rows of the tables of Section 5.1 of the paper from the
 output of large.sh: the query time of first-level keys and of all keys, and
 the thread scaling and peak memory of the construction. Sizes that are
 missing are skipped.

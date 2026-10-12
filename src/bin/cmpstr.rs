@@ -128,7 +128,7 @@ fn reference<'a, SC: SeedChooserConf + 'a>(
     }
 }
 
-fn phast_r<'a>(keys: &'a [GxStr], b: PHastRBuilder, name: String, sequential: bool) -> Entry<'a> {
+fn phastr<'a>(keys: &'a [GxStr], b: PHastRBuilder, name: String, sequential: bool) -> Entry<'a> {
     let t = Instant::now();
     let f: PHastR<GxStr, Box<[u8]>> =
         PHastR::try_par_new_with_builder(keys, b.clone(), no_logging![]).unwrap();
@@ -193,7 +193,7 @@ fn main() {
             "r" => {
                 let (b, sbits, desc) = lab::parse_config(&p[1..]);
                 assert!(sbits <= 8, "byte seeds only");
-                phast_r(&keys, b, desc, sequential)
+                phastr(&keys, b, desc, sequential)
             }
             _ => panic!("unknown variant {v}"),
         });

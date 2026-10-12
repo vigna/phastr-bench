@@ -7,7 +7,7 @@ pub mod walk;
 /// Builds a PHastR function on the given keys, choosing byte seeds for at
 /// most 8 bits per seed and a bit-field vector otherwise, and returns its
 /// space in bits per key.
-pub fn phast_r_bits_per_key(keys: &[u64], b: &sux::func::PHastRBuilder, seed_bits: u32) -> f64 {
+pub fn phastr_bits_per_key(keys: &[u64], b: &sux::func::PHastRBuilder, seed_bits: u32) -> f64 {
     use dsi_progress_logger::no_logging;
     use mem_dbg::{MemSize, SizeFlags};
     use sux::func::PHastR;

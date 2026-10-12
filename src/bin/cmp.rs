@@ -49,7 +49,7 @@ use ph::{BuildSeededHasher, GetSize};
 use std::hash::Hasher;
 use std::time::Instant;
 use sux::bits::BitFieldVec;
-use sux::func::phast_r::SeedStoreBuild;
+use sux::func::phastr::SeedStoreBuild;
 use sux::func::{PHastR, PHastRBuilder};
 use sux::traits::TryIntoUnaligned;
 use sux::utils::ToSig;

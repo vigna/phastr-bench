@@ -22,7 +22,7 @@ use ph::seedable_hash::BuildGxHash;
 use ph::seeds::{Bits8, BitsFast, SeedSize};
 use std::time::Instant;
 use sux::bits::BitFieldVec;
-use sux::func::phast_r::{SeedStore, SeedStoreBuild};
+use sux::func::phastr::{SeedStore, SeedStoreBuild};
 use sux::func::{PHastR, PHastRBuilder};
 use sux::traits::TryIntoUnaligned;
 

@@ -9,7 +9,7 @@ use lab::GxKey;
 use std::time::Instant;
 use sux::bits::BitFieldVec;
 use sux::func::PHastR;
-use sux::func::phast_r::{LevelParams, SeedStore};
+use sux::func::phastr::{LevelParams, SeedStore};
 use sux::traits::TryIntoUnaligned;
 use value_traits::slices::SliceByValue;
 

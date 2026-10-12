@@ -1,6 +1,6 @@
 use std::time::Instant;
 use sux::bits::BitFieldVec;
-use sux::func::phast_r::{SeedStore, SeedStoreBuild};
+use sux::func::phastr::{SeedStore, SeedStoreBuild};
 
 #[inline(never)]
 fn bench(name: &str, n: usize, q: usize, f: impl Fn(usize) -> usize) {

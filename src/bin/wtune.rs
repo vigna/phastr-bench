@@ -15,7 +15,7 @@
 //!
 //! Usage: wtune [options] <seed bits> <log2 slice len> <bucket size>
 use clap::Parser;
-use lab::phast_r_bits_per_key;
+use lab::phastr_bits_per_key;
 use sux::func::PHastRBuilder;
 
 #[derive(Parser)]
@@ -60,7 +60,7 @@ fn eval(keysets: &[Vec<u64>], b: &PHastRBuilder, s: u32) -> f64 {
                         .num_threads(1)
                         .build()
                         .unwrap()
-                        .install(|| phast_r_bits_per_key(keys, b, s))
+                        .install(|| phastr_bits_per_key(keys, b, s))
                 })
             })
             .collect();

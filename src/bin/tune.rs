@@ -4,7 +4,7 @@
 //!
 //! Without configurations, sweeps the default configurations for 8-bit and
 //! 10-bit seeds.
-use lab::phast_r_bits_per_key;
+use lab::phastr_bits_per_key;
 use std::time::Instant;
 
 fn main() {
@@ -31,7 +31,7 @@ fn main() {
             fields[2] = lam;
             let (b, s, desc) = lab::parse_config(&fields);
             let t = Instant::now();
-            let bits = phast_r_bits_per_key(&keys, &b, s);
+            let bits = phastr_bits_per_key(&keys, &b, s);
             let el = t.elapsed().as_secs_f64() * 1e9 / n as f64;
             println!("{desc}: {bits:.4} bits/key, build {el:.1} ns/key");
         }

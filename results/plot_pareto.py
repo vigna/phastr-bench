@@ -65,7 +65,10 @@ def mark(variant, s):
         return 'pentagon*' if variant.endswith('default') else 'pentagon'
     m = ('star' if variant.endswith('delta=7') else 'diamond') if variant.startswith('PHast+') \
         else 'square' if variant == 'PHast' else 'triangle'
-    return m + ('*' if s == 8 and m != 'star' else '')
+    # Stars have no open variant: with 10-bit seeds we use a cross
+    if m == 'star':
+        return 'star' if s == 8 else 'x'
+    return m + ('*' if s == 8 else '')
 def color(variant):
     return 'black' if variant.startswith('PHast+') else 'blue!70!black' if variant == 'PHast' \
         else 'green!50!black' if variant.startswith('PtrHash') else 'red!70!black'
@@ -135,7 +138,7 @@ if len(sys.argv) > 2:
     fig, axes = plt.subplots(rows, 2, figsize=(6.3, 2.6 * rows), squeeze=False)
     mcolor = {'black': 'black', 'blue!70!black': 'tab:blue', 'red!70!black': 'tab:red',
               'green!50!black': 'tab:green'}
-    mmark = {'o': 'o', 'diamond': 'D', 'square': 's', 'triangle': '^', 'star': '*', 'pentagon': 'p'}
+    mmark = {'o': 'o', 'diamond': 'D', 'square': 's', 'triangle': '^', 'star': '*', 'x': 'x', 'pentagon': 'p'}
     mplain = lambda v, s: mmark[mark(v, s).rstrip('*')] if mark(v, s) != '*' else 'o'
     for i, (n, idx, ylabel, _) in enumerate(panels):
         ax = axes[i // 2][i % 2]

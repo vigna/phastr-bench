@@ -42,8 +42,9 @@ Run any binary with `-h` for its options.
 nohup results/redo.sh &
 ```
 
-`redo.sh` runs all the experiments of the paper. It needs Linux (it uses
-`lscpu`, `free`, and GNU `time`). It builds the binaries in
+`redo.sh` runs all the experiments of the paper. It runs on Linux and on
+macOS, where processes cannot be pinned to cores, so timings are less
+stable (run it under `caffeinate -i`, so that the machine does not sleep). It builds the binaries in
 `target-<hostname>` and writes the results to `results/<hostname>/`.
 On a c7i.metal-24xl, with key sets up to 10⁹ keys (the default if there are
 64 GB of free memory), it takes about eight hours. Key sets of 10¹⁰ keys must

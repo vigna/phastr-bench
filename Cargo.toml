@@ -11,7 +11,7 @@ name = "lab"
 [dependencies]
 ph = { path = "bsuccinct-rs/ph", features = ["wyhash", "gxhash"] }
 ptr_hash = { path = "PTRHash" }
-sux = { version = "=0.15.1", features = ["epserde", "cli"] }
+sux = { version = "=0.15.2", features = ["epserde", "cli"] }
 clap = { version = "4", features = ["derive"] }
 xxhash-rust = { version = "0.8", features = ["xxh3"] }
 gxhash = "3.5"

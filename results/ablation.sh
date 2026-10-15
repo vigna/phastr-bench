@@ -7,7 +7,7 @@
 # configurations and those with the expected bucket size minimizing the
 # space of each number of layouts (A8OPT and A10OPT), all queried by the
 # generic code (with four layouts, the default code uses constant shifts).
-# About forty minutes on a c7i.metal-24xl.
+# About forty minutes on an m8a.metal-24xl.
 # Usage: ablation.sh <cmp binary> <output prefix>
 # Environment: CPU1, SIZES, BUILDS; see redo.sh. Only sizes up to 10^9 are
 # used.

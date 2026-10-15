@@ -7,10 +7,10 @@
 # reference implementation and PtrHash are the submodules bsuccinct-rs and
 # PTRHash (clone with --recursive).
 # Usage: redo.sh [max keys]      (default: 10^9 if there are 64 GB free)
-# It takes about eight hours on a c7i.metal-24xl (run.sh five hours and a
-# half, large.sh one hour, spread.sh and offline.sh ten minutes each, plus
-# half an hour for offline.sh if TMPDIR has 170 GB free for an offline
-# construction on 10^10 keys, ablation.sh forty minutes): run it under
+# It takes about eight hours on an m8a.metal-24xl (run.sh four hours and
+# three quarters, large.sh two hours, spread.sh five minutes, offline.sh a
+# quarter of an hour, including an offline construction on 10^10 keys if
+# TMPDIR has 170 GB free, ablation.sh forty minutes): run it under
 # nohup or in a terminal multiplexer (on macOS, also under caffeinate -i, so
 # that the machine does not sleep). Experiments on 10^10 keys must be requested explicitly
 # (redo.sh 10000000000): they need 250 GB of free memory and about twenty

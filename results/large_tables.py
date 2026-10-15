@@ -32,8 +32,8 @@ for line in open(f'{d}/qsplit.txt'):
     m = re.match(r'(\d+) (\S+)(?: u8)?\s+all\s+([\d.]+) ns\s+fast\s+([\d.]+) ns\s+slow\s+([\d.]+) ns\s+bumped ([\d.]+)%', line)
     n, name, all_, fast, slow, beta = m.groups()
     split.setdefault(name, {})[int(n)] = (float(fast), float(all_), float(beta))
-# On 10^8 keys the four structures fit together in the L3 cache of the c7i
-# (105 MB), so the difference between the two columns is below the noise,
+# On 10^8 keys each structure fits in the L3 cache of a group of eight cores
+# of the m8a (32 MiB), so the difference between the two columns is below the noise,
 # and the extra time of a bumped key cannot be estimated: we omit this size
 SPLIT_OMIT = {10**8}
 all_sizes = sorted({n for v in split.values() for n in v})

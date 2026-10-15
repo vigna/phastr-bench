@@ -2,5 +2,6 @@
 /target-*
 /results/*
 !/results/c7i/
+!/results/m8a/
 !/results/*.sh
 !/results/*.py

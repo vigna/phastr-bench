@@ -4,7 +4,7 @@
 # and peak memory.
 # Usage: large.sh <directory of the binaries> <output directory>
 # Environment: CPU1, CORES (a list of distinct cores), THREADS, SIZES,
-# BUILDS; see redo.sh. On a c7i.metal-24xl this takes about an hour, most of
+# BUILDS; see redo.sh. On an m8a.metal-24xl this takes about two hours, most of
 # it spent building PHast; with 10^9 keys the peak memory usage is about
 # 60 GB, with 10^10 keys about 250 GB.
 . "$(dirname "$0")/configs.sh"

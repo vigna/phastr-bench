@@ -2,8 +2,8 @@
 # Space and fraction of bumped keys of the configurations of the tables over
 # ten key sets of 10^7 keys (cmp --key-seed 1 to 10), single-threaded, one
 # construction each: these values do not depend on the hardware, and their
-# spread tells which differences in space are significant. About ten
-# minutes on a c7i.metal-24xl.
+# spread tells which differences in space are significant. About five
+# minutes on an m8a.metal-24xl.
 # Usage: spread.sh <cmp binary> <output prefix>
 # Environment: CPU1; see redo.sh. SPREAD_N (the number of keys, 10^7 by
 # default) and SEEDS (the key seeds, 1 to 10 by default).

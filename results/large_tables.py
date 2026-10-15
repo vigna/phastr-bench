@@ -32,9 +32,15 @@ for line in open(f'{d}/qsplit.txt'):
     m = re.match(r'(\d+) (\S+)(?: u8)?\s+all\s+([\d.]+) ns\s+fast\s+([\d.]+) ns\s+slow\s+([\d.]+) ns\s+bumped ([\d.]+)%', line)
     n, name, all_, fast, slow, beta = m.groups()
     split.setdefault(name, {})[int(n)] = (float(fast), float(all_), float(beta))
-# On 10^8 keys each structure fits in the L3 cache of a group of eight cores
-# of the m8a (32 MiB), so the difference between the two columns is below the noise,
-# and the extra time of a bumped key cannot be estimated: we omit this size
+# On 10^8 keys a structure (about 24 MB) is close to the size of the L3 cache
+# of a group of eight cores of the m8a (32 MiB), so query times depend on how
+# much of it stays in the cache, and thus on the benchmark: here rounds of
+# 4*10^6 queries cycle through four structures, and queries are about 25%
+# faster than in run.sh, whose rounds of 2*10^6 queries cycle through 30
+# structures (on 10^7 and 10^9 keys the two agree within 10% and 1%). The
+# split is not consistent either (for PHast+ with wrapping, first-level time,
+# bumped-key time, and fraction of bumped keys predict 6.5 ns for all keys,
+# against 8.7 ns measured): we omit this size
 SPLIT_OMIT = {10**8}
 all_sizes = sorted({n for v in split.values() for n in v})
 sizes = [n for n in all_sizes if n not in SPLIT_OMIT]

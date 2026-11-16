@@ -1,0 +1,5 @@
+/target
+/target-*
+/results/*
+!/results/*.sh
+!/results/*.py

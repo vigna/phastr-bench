@@ -1,0 +1,28 @@
+[package]
+name = "phastr-bench"
+version = "0.1.0"
+edition = "2024"
+publish = false
+description = "Experiments of the PHastR paper"
+
+[lib]
+name = "lab"
+
+[dependencies]
+ph = { path = "bsuccinct-rs/ph", features = ["wyhash", "gxhash"] }
+ptr_hash = { path = "PTRHash" }
+sux = { git = "https://github.com/vigna/sux-rs.git", rev = "1b55c51a", features = ["epserde", "cli"] }
+clap = { version = "4", features = ["derive"] }
+xxhash-rust = { version = "0.8", features = ["xxh3"] }
+gxhash = "3.5"
+dsi-progress-logger = "0.8.11"
+mem_dbg = "0.4"
+
+[profile.release]
+opt-level = 3
+debug = true
+codegen-units = 1
+lto = "thin"
+
+# Standalone workspace, independent of the sux package.
+[workspace]
